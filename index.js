@@ -9,6 +9,7 @@ const port = process.env.PORT || 5000
 const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+const AWS_CDN_URL = process.env.AWS_CDN_URL;
 // console.log(AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_BUCKET_NAME);
 
 const AWS = require('aws-sdk');
@@ -42,7 +43,7 @@ app.post('/upload', (req, res) => {
     const upload = multer({
         storage: multer.memoryStorage(),
         limits: {
-            fileSize: 5 * 1024 * 1024 // no larger than 5mb
+            fileSize: 10 * 1024 * 1024 // no larger than 5mb
         },
     }).single('file');
 
@@ -51,7 +52,7 @@ app.post('/upload', (req, res) => {
             console.log(err);
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(422).send({
-                    message: 'File size is too large. Max limit is 5MB'
+                    message: 'File size is too large. Max limit is 10MB'
                 });
             }
             return res.status(422).send({
@@ -74,9 +75,11 @@ app.post('/upload', (req, res) => {
                 });
             } else {
                 console.log(data);
+                const fileUrl = `${AWS_CDN_URL}/${uniqueFileName}`;
                 return res.status(200).send({
                     message: 'File uploaded successfully',
-                    data
+                    data,
+                    fileUrl
                 });
             }
         });
