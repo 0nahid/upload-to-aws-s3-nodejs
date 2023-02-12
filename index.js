@@ -60,9 +60,10 @@ app.post('/upload', (req, res) => {
         }
         // upload file to s3
         const file = req.file;
+        const uniqueFileName = Date.now() + '-' + file.originalname; // unique file name
         const params = {
             Bucket: AWS_BUCKET_NAME,
-            Key: file.originalname,
+            Key: uniqueFileName,
             Body: file.buffer
         };
         s3.upload(params, (err, data) => {
